@@ -1,8 +1,8 @@
-# AI 闯关答题小程序（企业内部版）
+# AI 闯关答题小程序
 
 > 把企业内部资料一键变成考核题：员工在微信里答题，管理者看团队薄弱点。
 
-**技术栈**：Taro 4（React）· FastAPI · LangChain · DeepSeek · SQLite · Chroma 向量库
+**技术栈**：Taro 4（React）· FastAPI · LangChain · DeepSeek · Chroma 向量库
 
 关联文档：《方案设计文档 v1.0》《需求分析文档 v1.0》位于仓库根目录，安装部署见《安装说明.md》。
 
