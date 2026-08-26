@@ -1,0 +1,24 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.12
+pypdf==5.1.0
+olefile==0.47
+pydantic==2.9.2
+pydantic-settings==2.5.2
+langchain==0.3.0
+langchain-openai==0.2.0
+python-dotenv==1.0.1
+httpx==0.27.2
+# OCR 旁路：图片 / 扫描件文字识别（DeepSeek 无视觉，靠本地 OCR 转文字）
+# 注意：opencv-contrib 4.10 必须配 numpy 1.x（opencv 4.11 强制 numpy 2.x，与 paddle 2.6 冲突）
+paddlepaddle==2.6.2
+paddleocr==2.9.1
+pymupdf==1.24.10
+numpy==1.26.4
+opencv-contrib-python==4.10.0.84
+# RAG 知识库：Chroma 向量库 + 本地 bge embedding（免费离线，torch 由 mypytorch 环境自带）
+# 安装方法（有依赖冲突，务必按 install_rag.bat 顺序安装）：
+#   1) pip install chromadb==0.5.23 sentence-transformers==3.3.1
+#   2) pip install protobuf==3.20.3 posthog==3.5.0   # 降级，否则 paddle 2.6.2 崩溃 / chromadb 遥测刷错
+chromadb==0.5.23
+sentence-transformers==3.3.1

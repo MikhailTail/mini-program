@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI闯关答题小程序·企业版 — 扩展功能</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#FDF6D8; --ink:#2B3A67; --red:#E84855; --green:#8AC926;
+    --orange:#FF9F1C; --gray:#C9C9C9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Noto Sans SC",sans-serif;background:#f1e9c8;
+    background-image:radial-gradient(#e7dcae 1px,transparent 1px);background-size:22px 22px;
+    padding:32px 16px;color:var(--ink);}
+  .head{max-width:1180px;margin:0 auto 26px;}
+  .head h1{font-family:"ZCOOL KuaiLe",cursive;font-size:34px;}
+  .head p{font-size:14px;color:#6b6450;margin-top:6px;}
+  .grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:680px){.grid{grid-template-columns:1fr;}}
+  .phone{background:var(--paper);border:2.5px solid var(--ink);border-radius:14px;
+    width:100%;max-width:375px;height:780px;margin:0 auto;position:relative;overflow:hidden;
+    box-shadow:6px 6px 0 rgba(43,58,103,.18);}
+  .phone::before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%) rotate(-3deg);
+    width:90px;height:22px;background:rgba(201,201,201,.75);border:1px dashed #9c9c9c;}
+  .scr{padding:26px 18px 18px;height:100%;display:flex;flex-direction:column;gap:14px;}
+  .tag{font-family:"ZCOOL KuaiLe",cursive;font-size:13px;color:var(--red);
+       border:1.5px solid var(--red);border-radius:20px;padding:2px 10px;align-self:flex-start;}
+  .title{font-family:"ZCOOL KuaiLe",cursive;font-size:24px;line-height:1.2;}
+  .bubble{position:relative;background:#fff;border:2px solid var(--ink);border-radius:12px;
+          padding:8px 12px;font-size:13px;max-width:84%;box-shadow:3px 3px 0 rgba(43,58,103,.15);}
+  .bubble::after{content:"";position:absolute;left:18px;bottom:-9px;border:7px solid transparent;border-top-color:var(--ink);}
+  .btn{font-family:"ZCOOL KuaiLe",cursive;font-size:16px;color:#fff;background:var(--red);
+       border:none;border-radius:10px;padding:11px 14px;text-align:center;box-shadow:3px 3px 0 rgba(43,58,103,.25);}
+  .btn.green{background:var(--green);} .btn.orange{background:var(--orange);color:var(--ink);}
+  .card{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:12px;box-shadow:2px 2px 0 rgba(43,58,103,.12);}
+  .doc{border:1.5px solid var(--ink);border-radius:8px;padding:9px 11px;font-size:13px;display:flex;align-items:center;gap:8px;}
+  .doc .ic{font-size:18px;}
+  .player{background:#fffdf2;border:2px dashed var(--orange);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;}
+  .player .pp{width:42px;height:42px;border-radius:50%;background:var(--orange);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto;}
+  .bar{flex:1;height:8px;background:var(--gray);border-radius:6px;position:relative;}
+  .bar i{position:absolute;left:0;top:0;bottom:0;width:40%;background:var(--orange);border-radius:6px;}
+  .muted{opacity:.45;filter:grayscale(.4);}
+  .foot{margin-top:auto;font-size:11px;color:#9c957a;text-align:center;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>扩展功能</h1>
+    <p>分组 C — 企业资料库(RAG) · 音频听题 · 管理者团队报告（二期占位，草稿纸 / 阿衰漫画风）</p>
+  </div>
+
+  <div class="grid">
+    <!-- C1 企业资料库 -->
+    <div class="phone">
+      <div class="scr">
+        <span class="tag">企业资料库</span>
+        <div class="title">资料 → 考题</div>
+        <div class="bubble">HR 传份制度，AI 出题考试</div>
+        <div class="doc"><span class="ic">📄</span>员工手册2026.pdf</div>
+        <div class="doc"><span class="ic">📊</span>产品白皮书.pdf</div>
+        <div class="doc"><span class="ic">📋</span>合规培训.pptx</div>
+        <button class="btn green">上传并生成题库 →</button>
+        <div class="card" style="font-size:12px;color:#6b6450;">RAG 精准出题 · 文档不出企业内网（二期）</div>
+        <div class="foot">私有化部署卖点 · 003</div>
+      </div>
+    </div>
+
+    <!-- C2 音频听题 -->
+    <div class="phone">
+      <div class="scr">
+        <span class="tag">音频听题</span>
+        <div class="title">碎片时间听</div>
+        <div class="bubble">通勤路上，耳朵也能闯关</div>
+        <div class="player">
+          <div class="pp">▶</div>
+          <div style="flex:1">
+            <div style="font-size:13px;">闭包是函数记住其词法环境…</div>
+            <div class="bar"><i></i></div>
+          </div>
+        </div>
+        <div class="card" style="font-size:12px;">上一题 ⏮　下一题 ⏭　语速 🐢🐰</div>
+        <button class="btn orange">听完整套题库</button>
+        <div class="foot">蜡笔橙播放条 · 对标有声研学</div>
+      </div>
+    </div>
+
+    <!-- C3 管理者团队报告 -->
+    <div class="phone muted">
+      <div class="scr">
+        <span class="tag">管理者视图</span>
+        <div class="title">团队薄弱点</div>
+        <div class="bubble">老板视角：谁没学会</div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:700;">部门正确率</div>
+          <div style="font-size:12px;margin-top:6px;">研发 92% · 市场 88% · 产品 81%</div>
+          <div style="font-size:12px;margin-top:4px;">薄弱：原型链 / 事件循环</div>
+        </div>
+        <div class="card" style="font-size:12px;color:#6b6450;">全员分布热力图（占位）</div>
+        <button class="btn" disabled style="background:var(--gray);box-shadow:none;">二期开放 →</button>
+        <div class="foot">企业版 SaaS 变现主线</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

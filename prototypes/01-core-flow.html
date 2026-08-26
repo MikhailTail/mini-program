@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI闯关答题小程序·企业版 — 核心学习闭环</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#FDF6D8; --ink:#2B3A67; --red:#E84855; --green:#8AC926;
+    --orange:#FF9F1C; --gray:#C9C9C9; --line:#2B3A67;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"Noto Sans SC",sans-serif;
+    background:#f1e9c8;
+    background-image:radial-gradient(#e7dcae 1px,transparent 1px);
+    background-size:22px 22px;
+    padding:32px 16px; color:var(--ink);
+  }
+  .head{max-width:1180px;margin:0 auto 26px;}
+  .head h1{font-family:"ZCOOL KuaiLe",cursive;font-size:34px;color:var(--ink);}
+  .head p{font-size:14px;color:#6b6450;margin-top:6px;}
+  .grid{
+    max-width:1180px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+  }
+  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:680px){.grid{grid-template-columns:1fr;}}
+  .phone{
+    background:var(--paper);
+    border:2.5px solid var(--ink);
+    border-radius:14px;
+    width:100%;max-width:375px;height:780px;margin:0 auto;
+    position:relative;overflow:hidden;
+    box-shadow:6px 6px 0 rgba(43,58,103,.18);
+  }
+  /* 胶带角标 */
+  .phone::before{
+    content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%) rotate(-3deg);
+    width:90px;height:22px;background:rgba(201,201,201,.75);
+    border:1px dashed #9c9c9c;
+  }
+  .scr{padding:26px 18px 18px;height:100%;display:flex;flex-direction:column;gap:14px;overflow:hidden;}
+  .tag{font-family:"ZCOOL KuaiLe",cursive;font-size:13px;color:var(--red);
+       border:1.5px solid var(--red);border-radius:20px;padding:2px 10px;align-self:flex-start;}
+  .title{font-family:"ZCOOL KuaiLe",cursive;font-size:24px;line-height:1.2;}
+  /* 台词气泡 */
+  .bubble{position:relative;background:#fff;border:2px solid var(--ink);border-radius:12px;
+          padding:8px 12px;font-size:13px;max-width:84%;box-shadow:3px 3px 0 rgba(43,58,103,.15);}
+  .bubble::after{content:"";position:absolute;left:18px;bottom:-9px;
+          border:7px solid transparent;border-top-color:var(--ink);}
+  .btn{font-family:"ZCOOL KuaiLe",cursive;font-size:16px;color:#fff;background:var(--red);
+       border:none;border-radius:10px;padding:11px 14px;text-align:center;cursor:pointer;
+       box-shadow:3px 3px 0 rgba(43,58,103,.25);}
+  .btn.green{background:var(--green);} .btn.orange{background:var(--orange);color:var(--ink);}
+  .card{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:12px;
+        box-shadow:2px 2px 0 rgba(43,58,103,.12);}
+  .row{display:flex;gap:10px;}
+  .qbox{background:#fffdf2;border:2px dashed var(--red);border-radius:10px;padding:12px;font-size:14px;}
+  .opt{display:flex;align-items:center;gap:8px;border:1.5px solid var(--ink);border-radius:8px;
+       padding:8px 10px;font-size:13px;margin-top:8px;}
+  .opt.on{background:var(--green);color:#fff;border-color:var(--green);}
+  .opt.wrong{background:var(--red);color:#fff;border-color:var(--red);}
+  .dot{width:16px;height:16px;border:2px solid var(--ink);border-radius:50%;flex:0 0 auto;}
+  .opt.on .dot,.opt.wrong .dot{background:#fff;border-color:#fff;}
+  /* 多选：方块勾选 */
+  .opt.multi .dot{border-radius:3px;}
+  .opt.multi.on{background:var(--orange);color:#fff;border-color:var(--orange);}
+  .opt.multi.on .dot{background:#fff;position:relative;}
+  .opt.multi.on .dot::after{content:"✓";position:absolute;inset:-2px 0 0 1px;
+    font-size:12px;color:var(--orange);font-weight:700;}
+  .qtype{font-size:11px;font-family:"ZCOOL KuaiLe",cursive;padding:1px 8px;border-radius:10px;}
+  .qtype.single{color:var(--red);border:1.5px solid var(--red);}
+  .qtype.multiple{color:var(--orange);border:1.5px solid var(--orange);}
+  .recent{display:flex;gap:10px;}
+  .chip{flex:1;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:10px 8px;text-align:center;font-size:12px;}
+  .chip b{font-family:"ZCOOL KuaiLe",cursive;font-size:18px;display:block;color:var(--red);}
+  .stars{font-size:20px;letter-spacing:2px;color:var(--orange);}
+  .score{font-family:"ZCOOL KuaiLe",cursive;font-size:46px;color:var(--red);text-align:center;}
+  .weak{display:flex;gap:8px;flex-wrap:wrap;}
+  .weak span{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:3px 10px;font-size:12px;}
+  .foot{margin-top:auto;font-size:11px;color:#9c957a;text-align:center;}
+  .scroll{overflow:auto;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>AI闯关答题 · 企业版</h1>
+    <p>分组 A — 核心学习闭环（草稿纸 / 阿衰漫画风）：首页资料 → AI出题 → 答题闯关 → 成绩报告 → 错题</p>
+  </div>
+
+  <div class="grid">
+    <!-- A1 首页 -->
+    <div class="phone">
+      <div class="scr">
+        <span class="tag">首页 / 企业资料</span>
+        <div class="title">AI闯关答题<br/>·企业版</div>
+        <div class="bubble">今天也来被题拷打一下？</div>
+        <button class="btn">＋ 粘贴资料 / 上传制度PDF</button>
+        <div style="font-size:12px;color:#6b6450;margin-top:2px;">最近题库</div>
+        <div class="recent">
+          <div class="chip">制度考<b>80%</b>✓</div>
+          <div class="chip">产品知<b>进度</b></div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:#6b6450;">连续打卡</div>
+          <div class="stars">🔥🔥🔥🔥🔥🔥🔥</div>
+          <div style="font-size:12px;margin-top:4px;">积分 <b style="font-family:'ZCOOL KuaiLe'">★120</b></div>
+        </div>
+        <button class="btn green">开始闯关 →</button>
+        <div class="foot">钉在课桌上的草稿纸 · 001</div>
+      </div>
+    </div>
+
+    <!-- A2 答题闯关（多选题示例） -->
+    <div class="phone">
+      <div class="scr">
+        <span class="tag">答题闯关 · Q4/10</span>
+        <div class="stars">⭐⭐⭐☆☆</div>
+        <div class="qbox">
+          关于事件循环的任务调度，下列说法<b>正确</b>的有？<br/>
+          <span class="qtype multiple">多选</span>
+          <span style="color:var(--red);font-size:11px;">（红笔批注：可多选，少选不得分）</span>
+        </div>
+        <div class="opt multi on"><span class="dot"></span>A. 微任务优先于宏任务</div>
+        <div class="opt multi"><span class="dot"></span>B. 宏任务优先于微任务</div>
+        <div class="opt multi on"><span class="dot"></span>C. Promise 回调属于微任务</div>
+        <div class="opt multi on"><span class="dot"></span>D. setTimeout 属于宏任务</div>
+        <div class="bubble">多选像点菜，少点漏点都白搭 🤡</div>
+        <button class="btn">下一题 →</button>
+        <div class="foot">方块=多选可勾多个 · 圆圈=单选（见下页）</div>
+      </div>
+    </div>
+
+    <!-- A3 成绩 / 报告 -->
+    <div class="phone">
+      <div class="scr">
+        <span class="tag">AI 分析报告</span>
+        <div class="title">成绩单（红笔打分）</div>
+        <div class="score">72</div>
+        <div style="text-align:center;font-size:13px;color:var(--red);">评级：及格边缘 · 再练练</div>
+        <div class="weak">
+          <span>闭包</span><span>原型链</span><span>事件循环</span>
+        </div>
+        <div class="bubble">老板问你学会了没，亮这份 😎</div>
+        <button class="btn orange">重做错题</button>
+        <button class="btn">分享挑战卡 →</button>
+        <div class="foot">报告由 DeepSeek 生成</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
