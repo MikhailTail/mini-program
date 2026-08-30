@@ -3,7 +3,7 @@
   "cloudfunctionRoot": "cloudfunctions/",
   "projectname": "ai-quiz-enterprise",
   "description": "AI闯关答题小程序·企业版",
-  "appid": "wxd2df3797fbb53f89",
+  "appid": "touristappid",
   "setting": {
     "urlCheck": false,
     "es6": false,
