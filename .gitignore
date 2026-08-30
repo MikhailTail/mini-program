@@ -25,3 +25,8 @@ uploads/
 # IDE / 工具缓存
 .codebuddy/
 .playwright-cli/
+
+# 微信小程序专属(云函数 / 开发者工具配置,不进仓库)
+cloudfunctions/
+project.config.json
+project.private.config.json
