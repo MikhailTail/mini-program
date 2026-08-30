@@ -39,7 +39,6 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 # 构建：cd frontend && npx taro build --type h5
 _DIST_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "frontend",
     "dist",
 )
 if os.path.isdir(_DIST_DIR):

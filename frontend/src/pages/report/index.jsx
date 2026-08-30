@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, Button } from "@tarojs/components";
 import Taro, { useRouter } from "@tarojs/taro";
 import { generateReport, getDeviceId } from "../../api/quiz";
+import { saveAnswerRecord } from "../../utils/cloud";
 
 function gradeOf(score) {
   if (score >= 90) return "优秀 · 稳得很，小心被打！";
@@ -16,7 +17,9 @@ export default function Report() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const pass = submit.score >= 60;
+  // 红笔打分统一按“每题 10 分”重算：分数 = 答对题数 × 10，与下方“满分 N 分·答对 M 题”保持一致
+  const realScore = (submit.correct_count || 0) * 10;
+  const pass = realScore >= 60;
 
   const gen = async () => {
     setLoading(true);
@@ -25,12 +28,28 @@ export default function Report() {
         task_id: submit.task_id,
         device_id: getDeviceId(),
         corp_code: submit.corp_code,
-        score: submit.score,
+        score: realScore,
         total: submit.total,
         correct_count: submit.correct_count,
         results: submit.results,
       });
       setReport(res);
+      // 静默留存答题记录+报告到云数据库（云开发）
+      saveAnswerRecord({
+        task_id: submit.task_id,
+        device_id: getDeviceId(),
+        corp_code: submit.corp_code,
+        score: realScore,
+        total: submit.total,
+        correct_count: submit.correct_count,
+        results: submit.results,
+        report: {
+          summary: res.summary,
+          weak_points: res.weak_points,
+          suggestions: res.suggestions,
+          degraded: res.degraded,
+        },
+      });
     } catch (e) {
       // toast in request
     } finally {
@@ -43,10 +62,10 @@ export default function Report() {
       <Text className="tag">AI 分析报告</Text>
       <View className="title">成绩单（红笔打分）</View>
 
-      <View className={`score${pass ? " pass" : ""}`}>{submit.score}</View>
+      <View className={`score${pass ? " pass" : ""}`}>{realScore}</View>
       <View className="score-label">满分 {submit.total * 10} 分 · 答对 {submit.correct_count}/{submit.total} 题</View>
       <View className="grade-line">
-        评级：<b>{gradeOf(submit.score)}</b>
+        评级：<b>{gradeOf(realScore)}</b>
         {report && report.degraded ? "（报告为本地降级）" : ""}
       </View>
 

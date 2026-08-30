@@ -23,8 +23,8 @@ body {
 
 /* 一张钉在课桌上的草稿纸 */
 .scr {
-  max-width: 480px;
-  margin: 0 auto;
+  width: 100%;
+  min-width: 320px;
   padding: 44px 26px 64px;
   min-height: 100vh;
   box-sizing: border-box;
@@ -504,6 +504,43 @@ body {
   text-align: right;
   margin: 6px 0 10px;
 }
+
+/* ---------- 上传成功预览卡片 ---------- */
+.upload-card {
+  background: #f2fbe4;
+  border: 2.5px solid var(--green);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 12px 0 4px;
+  box-shadow: 3px 3px 0 rgba(138, 201, 38, 0.5);
+}
+.upload-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.upload-card-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #3f6d00;
+}
+.upload-card-meta {
+  font-size: 20px;
+  color: #6b8f3a;
+  flex-shrink: 0;
+}
+.upload-card-preview {
+  font-size: 22px;
+  line-height: 1.6;
+  color: #4a5b2f;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 10px 12px;
+  word-break: break-all;
+}
+
 .btn.ghost {
   background: #fff;
   border: 2px dashed var(--ink);
@@ -514,6 +551,45 @@ body {
   background: #f0ead0;
   box-shadow: none;
   transform: none;
+}
+/* 文档列表中的删除按钮 */
+.btn-del {
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--red);
+  border-radius: 8px;
+  padding: 6px 18px;
+}
+.btn-del:active {
+  opacity: 0.8;
+}
+.btn-del.disabled {
+  opacity: 0.55;
+}
+/* 企业码门禁 */
+.gate-card {
+  margin-top: 16px;
+}
+.gate-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.corp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 14px;
+}
+.corp-badge {
+  font-size: 22px;
+  font-weight: 600;
+  background: #f0ead0;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  padding: 6px 14px;
 }
 
 /* =====================================================

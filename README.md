@@ -53,6 +53,7 @@ mini-program/
 │       ├── api/             # 接口封装(相对路径, dev 走 /api 代理)
 │       └── config/          # Taro 编译配置(含 devServer 代理)
 ├── prototypes/              # 交互原型(HTML)
+├── tools/                   # 开发辅助脚本（一键启动 / 诊断）
 ├── README.md                # 本文档
 └── 安装说明.md               # 安装部署说明
 ```
@@ -100,7 +101,30 @@ FastAPI 分层后端 + Taro 前端 + 交互原型，与参照项目同构。
 
 完整安装步骤（Python / Node / 依赖 / 环境变量 / 启动方式）见 **[《安装说明.md》](安装说明.md)**。
 
-简要流程：
+### 方式一：一键启动脚本（推荐）
+
+项目根目录已提供 `tools/start_dev.ps1`，一条命令同时拉起后端（:8000）与前端 H5 开发服务（:10086）：
+
+```powershell
+# 启动前后端
+powershell -ExecutionPolicy Bypass -File tools/start_dev.ps1
+
+# 停止前后端
+powershell -ExecutionPolicy Bypass -File tools/start_dev.ps1 -Stop
+
+# 只启动后端 / 只启动前端
+powershell -ExecutionPolicy Bypass -File tools/start_dev.ps1 -BackendOnly
+powershell -ExecutionPolicy Bypass -File tools/start_dev.ps1 -FrontendOnly
+```
+
+脚本特性：
+
+- 自动检测端口占用，已运行的服务会跳过，不会重复拉起
+- 后端复用 `backend/run_server.bat`（自动设置 PYTHONPATH 并启动 uvicorn）
+- 前端自动执行 `npm run dev:h5`（`node_modules` 缺失时自动 `npm install`）
+- 等待服务就绪后打印访问地址，日志输出到 `tools/logs/backend.log` 与 `tools/logs/frontend.log`
+
+### 方式二：手动启动
 
 ```bash
 # 1. 后端：安装依赖并启动（端口 8000）
@@ -116,4 +140,4 @@ npm install
 npm run dev:h5
 ```
 
-访问 H5：`http://localhost:10086`；生产部署时将 `frontend/dist` 构建产物由后端同源托管。
+访问 H5：`http://localhost:10086`；生产部署时将根目录 `dist` 构建产物由后端同源托管。

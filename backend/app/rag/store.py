@@ -109,6 +109,58 @@ def count(corp_code: str) -> int:
     return col.count() if col is not None else 0
 
 
+def exists_corp(corp_code: str) -> bool:
+    """判断该企业码下是否已有知识库（collection 存在且有数据）。"""
+    col = _get_collection(corp_code, create=False)
+    return col is not None and col.count() > 0
+
+
+def exists_document(corp_code: str, source: str) -> bool:
+    """判断该企业知识库是否已入库同名文档（按 source 元数据精确匹配）。"""
+    if not source:
+        return False
+    col = _get_collection(corp_code, create=False)
+    if col is None or col.count() == 0:
+        return False
+    res = col.get(where={"source": {"$eq": source}}, include=["metadatas"])
+    return bool(res.get("ids"))
+
+
+def list_documents(corp_code: str) -> list[dict]:
+    """聚合返回已入库文档列表：[{source, chunks, chars}]，按字符数降序。
+
+    用于知识库页面展示"已有哪些题库"，避免重复上传同名文档。
+    """
+    col = _get_collection(corp_code, create=False)
+    if col is None or col.count() == 0:
+        return []
+    res = col.get(include=["metadatas", "documents"])
+    metas = res.get("metadatas") or []
+    docs = res.get("documents") or []
+    agg: dict[str, dict] = {}
+    for meta, doc in zip(metas, docs):
+        src = (meta or {}).get("source", "unknown")
+        item = agg.setdefault(src, {"source": src, "chunks": 0, "chars": 0})
+        item["chunks"] += 1
+        item["chars"] += len(doc or "")
+    return sorted(agg.values(), key=lambda x: -x["chars"])
+
+
+def delete_document(corp_code: str, source: str) -> int:
+    """删除该企业知识库中指定文件名的全部块。返回删除块数；文档不存在返回 0。"""
+    if not source:
+        return 0
+    col = _get_collection(corp_code, create=False)
+    if col is None or col.count() == 0:
+        return 0
+    res = col.get(where={"source": {"$eq": source}}, include=["metadatas"])
+    ids = res.get("ids") or []
+    if not ids:
+        return 0
+    col.delete(ids=ids)
+    return len(ids)
+
+
 def delete_corp(corp_code: str) -> None:
     """清空某个企业码的知识库（用于测试与重建）。"""
     name = _collection_name(corp_code)

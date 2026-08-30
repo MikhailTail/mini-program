@@ -9,13 +9,22 @@ from app.rag import chunker, store
 from app.utils.doc_extractor import extract_text
 
 
+class DuplicateDocumentError(ValueError):
+    """目标企业知识库已存在同名文档。"""
+
+
 def index_document(corp_code: str, filename: str, data: bytes) -> dict:
     """离线建库：解析文档 → 分块 → 向量化 → 写入 Chroma。
 
-    返回 {chars, chunks, total}；文本为空时抛 ValueError。
+    返回 {chars, chunks, total}；文本为空时抛 ValueError；
+    同名文档已入库时抛 DuplicateDocumentError（避免重复入库）。
     """
     if not data:
         raise ValueError("上传的文件内容为空")
+    if store.exists_document(corp_code, filename):
+        raise DuplicateDocumentError(
+            f"《{filename}》已入库，请勿重复上传；如需更新，请先删除该文档后重新上传"
+        )
     text = extract_text(filename, data)
     if not text or not text.strip():
         raise ValueError("未能从文档中提取到文本，请确认文件非扫描损坏或格式支持")
@@ -44,3 +53,18 @@ def build_context(hits: list[dict]) -> str:
     return "\n\n".join(
         f"[来源:{h['source']}] {h['content']}" for h in hits
     )
+
+
+def exists_corp(corp_code: str) -> bool:
+    """判断该企业码下是否已有知识库（collection 存在且有数据）。"""
+    return store.exists_corp(corp_code)
+
+
+def list_documents(corp_code: str) -> list[dict]:
+    """列出该企业码知识库已入库的文档（文件名 + 块数 + 字符数）。"""
+    return store.list_documents(corp_code)
+
+
+def delete_document(corp_code: str, source: str) -> int:
+    """删除该企业知识库中指定文件名的文档。返回删除块数；不存在返回 0。"""
+    return store.delete_document(corp_code, source)

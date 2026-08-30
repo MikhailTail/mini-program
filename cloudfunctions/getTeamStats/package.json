@@ -1,0 +1,9 @@
+{
+  "name": "getTeamStats",
+  "version": "1.0.0",
+  "description": "团队答题统计",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

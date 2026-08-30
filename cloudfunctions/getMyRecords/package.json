@@ -1,0 +1,9 @@
+{
+  "name": "getMyRecords",
+  "version": "1.0.0",
+  "description": "查询个人历史答题记录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

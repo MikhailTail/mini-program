@@ -5,7 +5,7 @@
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from app.llm.answer_chain import generate_answer
@@ -31,6 +31,9 @@ class IndexResponse(BaseModel):
 async def rag_index(
     corp_code: str = Form("default", description="企业码，用于隔离知识库"),
     file: UploadFile = File(..., description="PDF/MD/Word 等文档"),
+    filename: str | None = Form(
+        None, description="原始文件名（小程序端 Taro.uploadFile 不带文件名，需前端显式传入）"
+    ),
 ):
     data = await file.read()
     if not data:
@@ -38,12 +41,72 @@ async def rag_index(
     if len(data) > MAX_FILE_BYTES:
         raise HTTPException(status_code=400, detail=f"文件超过 {MAX_FILE_BYTES // 1024 // 1024}MB 大小限制")
 
-    filename = file.filename or "upload"
+    # 入库文件名优先取前端显式传入的原始名，H5 浏览器自动带文件名时退化为 file.filename
+    name = (filename or "").strip() or (file.filename or "").strip() or "upload"
     try:
-        result = rag_service.index_document(corp_code, filename, data)
+        result = rag_service.index_document(corp_code, name, data)
+    except rag_service.DuplicateDocumentError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    return IndexResponse(filename=filename, **result)
+    return IndexResponse(filename=name, **result)
+
+
+# ---------- 1.2) 企业码验证（隔离门禁） ----------
+class CorpResponse(BaseModel):
+    corp_code: str
+    exists: bool
+    documents: int
+
+
+@router.get("/corp/{corp_code}", response_model=CorpResponse, summary="验证企业码是否存在知识库")
+async def rag_corp(corp_code: str):
+    """返回该企业码下是否已有知识库及文档数。前端门禁：只有输入对应企业码才能进入知识库页。"""
+    exists = rag_service.exists_corp(corp_code)
+    docs = rag_service.list_documents(corp_code)
+    return CorpResponse(corp_code=corp_code, exists=exists, documents=len(docs))
+
+
+# ---------- 1.5) 查看已入库文档 ----------
+class DocItem(BaseModel):
+    source: str
+    chunks: int
+    chars: int
+
+
+class DocListResponse(BaseModel):
+    total_chunks: int
+    total_chars: int
+    documents: list[DocItem]
+
+
+@router.get("/documents", response_model=DocListResponse, summary="查看已入库文档列表")
+async def rag_documents(corp_code: str = "default"):
+    """列出当前企业码知识库里已入库的文档（文件名/块数/字数），用于避免重复上传。"""
+    docs = rag_service.list_documents(corp_code)
+    return DocListResponse(
+        total_chunks=sum(d["chunks"] for d in docs),
+        total_chars=sum(d["chars"] for d in docs),
+        documents=[DocItem(**d) for d in docs],
+    )
+
+
+# ---------- 1.6) 删除单个已入库文档 ----------
+class DeleteResponse(BaseModel):
+    source: str
+    removed: int
+
+
+@router.delete("/documents", response_model=DeleteResponse, summary="删除单个已入库文档")
+async def rag_delete_document(
+    corp_code: str = "default",
+    source: str = Query(..., description="要删除的文档原始文件名"),
+):
+    """删除该企业知识库中指定文件名的文档，删除后同名文件可重新上传入库。"""
+    removed = rag_service.delete_document(corp_code, source)
+    if removed == 0:
+        raise HTTPException(status_code=404, detail=f"《{source}》不在该企业知识库中，无需删除")
+    return DeleteResponse(source=source, removed=removed)
 
 
 # ---------- 2) 用户问答 / 检索出题 ----------

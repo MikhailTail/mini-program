@@ -1,3 +1,16 @@
+const os = require("os");
+
+// 自动探测本机局域网 IPv4 地址（真机调试必须用电脑局域网 IP，127.0.0.1 在真机上指向手机自身）
+function getLanIP() {
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === "IPv4" && !net.internal) return net.address;
+    }
+  }
+  return "127.0.0.1";
+}
+
 const config = {
   projectName: "ai-quiz-enterprise",
   date: "2026-8-26",
@@ -8,12 +21,13 @@ const config = {
     828: 1.81 / 2,
   },
   sourceRoot: "src",
-  outputRoot: "dist",
+  outputRoot: "../dist",
   plugins: [],
-  // 编译期注入后端地址：构建时可用 TARO_APP_API_BASE 覆盖，默认本地 FastAPI
+  // 编译期注入后端地址：优先 TARO_APP_API_BASE 环境变量，否则自动用当前局域网 IP
+  // （真机与模拟器均可达；小程序请求层另有 127.0.0.1 兜底，模拟器可用）
   defineConstants: {
     "process.env.TARO_APP_API_BASE": JSON.stringify(
-      process.env.TARO_APP_API_BASE || "http://127.0.0.1:8000"
+      process.env.TARO_APP_API_BASE || `http://${getLanIP()}:8000`
     ),
   },
   copy: {

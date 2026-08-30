@@ -5,11 +5,12 @@ import { generateQuiz, uploadDoc } from "../../api/quiz";
 
 export default function Index() {
   const [content, setContent] = useState("");
-  const [n, setN] = useState(5);
+  const [nText, setNText] = useState("5");
   const [corpCode, setCorpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [inputShow, setInputShow] = useState(false);
+  const [uploadInfo, setUploadInfo] = useState(null);
 
   const onGenerate = async () => {
     if (content.trim().length < 10) {
@@ -17,9 +18,14 @@ export default function Index() {
       setInputShow(true);
       return;
     }
+    const count = parseInt(nText, 10);
+    if (!count || count < 1) {
+      Taro.showToast({ title: "出题数量至少 1 题", icon: "none" });
+      return;
+    }
     setLoading(true);
     try {
-      const res = await generateQuiz(content, n, corpCode || null);
+      const res = await generateQuiz(content, count, corpCode || null);
       Taro.navigateTo({
         url: `/pages/quiz/index?data=${encodeURIComponent(JSON.stringify(res))}`,
       });
@@ -31,19 +37,70 @@ export default function Index() {
   };
 
   const onPickFile = () => {
-    if (typeof document === "undefined") return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".txt,.md,.doc,.docx,.pdf,.wps,.text,.jpg,.jpeg,.png,.bmp,.webp";
-    input.onchange = async () => {
-      const file = input.files && input.files[0];
+    if (process.env.TARO_ENV === "h5") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".txt,.md,.doc,.docx,.pdf,.wps,.text,.jpg,.jpeg,.png,.bmp,.webp";
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        setUploading(true);
+        try {
+          const res = await uploadDoc(file);
+          setContent(res.text);
+          setUploadInfo({
+            filename: res.filename,
+            chars: res.chars,
+            truncated: res.truncated,
+            preview: (res.text || "").slice(0, 200),
+          });
+          Taro.showToast({
+            title: `已载入 ${res.chars} 字（${res.filename}）${res.truncated ? "，超长已截取" : ""}`,
+            icon: "none",
+          });
+          setInputShow(true);
+        } catch (e) {
+          /* 错误已在 uploadDoc 内提示 */
+        } finally {
+          setUploading(false);
+        }
+      };
+      input.click();
+      return;
+    }
+    // 小程序：从微信会话中选择文件
+    Taro.chooseMessageFile({
+      count: 1,
+      type: "all",
+      extension: [
+        ".txt",
+        ".md",
+        ".doc",
+        ".docx",
+        ".pdf",
+        ".wps",
+        ".text",
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".bmp",
+        ".webp",
+      ],
+    }).then(async (res) => {
+      const file = res.tempFiles && res.tempFiles[0];
       if (!file) return;
       setUploading(true);
       try {
-        const res = await uploadDoc(file);
-        setContent(res.text);
+        const r = await uploadDoc({ path: file.path, name: file.name, size: file.size });
+        setContent(r.text);
+        setUploadInfo({
+          filename: r.filename,
+          chars: r.chars,
+          truncated: r.truncated,
+          preview: (r.text || "").slice(0, 200),
+        });
         Taro.showToast({
-          title: `已载入 ${res.chars} 字（${res.filename}）${res.truncated ? "，超长已截取" : ""}`,
+          title: `已载入 ${r.chars} 字（${r.filename}）${r.truncated ? "，超长已截取" : ""}`,
           icon: "none",
         });
         setInputShow(true);
@@ -52,8 +109,9 @@ export default function Index() {
       } finally {
         setUploading(false);
       }
-    };
-    input.click();
+    }).catch(() => {
+      /* 用户取消选择，忽略 */
+    });
   };
 
   return (
@@ -98,14 +156,34 @@ export default function Index() {
           >
             {uploading ? "解析文档中…" : "＋ 上传文档 / 图片 / 扫描件（doc / pdf / 图片等）"}
           </Button>
+          {uploadInfo && (
+            <View className="upload-card">
+              <View className="upload-card-head">
+                <Text className="upload-card-title">上传成功</Text>
+                <Text className="upload-card-meta">
+                  {uploadInfo.filename} · {uploadInfo.chars} 字
+                  {uploadInfo.truncated ? " · 超长已截取" : ""}
+                </Text>
+              </View>
+              <View className="upload-card-preview">
+                {uploadInfo.preview}
+                {(uploadInfo.chars || 0) > 200 ? "…" : ""}
+              </View>
+            </View>
+          )}
           <View className="field-row">
             <View className="field">
               <Text className="field-label">出题数量</Text>
               <Input
                 type="number"
                 className="field-input"
-                value={String(n)}
-                onInput={(e) => setN(Number(e.detail.value) || 5)}
+                placeholder="如 5"
+                value={nText}
+                onInput={(e) => setNText(e.detail.value)}
+                onBlur={() => {
+                  const num = parseInt(nText, 10);
+                  if (!num || num < 1) setNText("5");
+                }}
               />
             </View>
             <View className="field">
